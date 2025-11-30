@@ -97,6 +97,24 @@
         }
     });
 </script>
-
+<script>
+    // Funkcja ładująca motyw z bazy danych
+    (function loadTheme() {
+        fetch('/api/theme')
+            .then(res => res.json())
+            .then(theme => {
+                const root = document.documentElement.style;
+                // Mapujemy pola z Javy na zmienne CSS
+                if(theme.colorPrimary) root.setProperty('--c-primary', theme.colorPrimary);
+                if(theme.colorHeaderBg) root.setProperty('--c-header-bg', theme.colorHeaderBg);
+                if(theme.colorAsideBg) root.setProperty('--c-aside-bg', theme.colorAsideBg);
+                if(theme.colorMainBg) root.setProperty('--c-main-bg', theme.colorMainBg);
+                if(theme.colorSurface) root.setProperty('--c-surface', theme.colorSurface);
+                if(theme.colorBodyBg) root.setProperty('--c-body-bg', theme.colorBodyBg);
+                if(theme.colorText) root.setProperty('--c-body-fg', theme.colorText);
+            })
+            .catch(err => console.error('Nie udało się załadować motywu:', err));
+    })();
+</script>
 </body>
 </html>
