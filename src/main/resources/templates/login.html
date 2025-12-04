@@ -1,24 +1,25 @@
 <!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Open Blog CMS - Logowanie administratora</title>
-</head>
-<body>
-<h1>Panel logowania administratora</h1>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Open Blog CMS - Logowanie administratora')"></head>
+<body th:replace="layout :: layout('Open Blog CMS - Logowanie administratora', ~{::article})">
 
-<form action="/login" method="post">
-    <label for="username"><b>Nazwa użytkownika</b></label>
-    <input type="text" name="username" placeholder="Username..." id="username"><br/>
+<article>
+    <h2>Panel logowania administratora</h2>
 
-    <label for="password"><b>Hasło</b></label>
-    <input type="password" name="password" placeholder="Password..." id="password"><br/>
+    <form action="/login" method="post">
+        <label for="username"><b>Nazwa użytkownika</b></label>
+        <input type="text" name="username" placeholder="Username..." id="username"><br/>
 
-    <button type="submit">Zaloguj</button>
-</form>
+        <label for="password"><b>Hasło</b></label>
+        <input type="password" name="password" placeholder="Password..." id="password"><br/>
 
-<p>
-    <a href="/">← Wróć do strony głównej forum</a>
-</p>
+        <button type="submit">Zaloguj</button>
+    </form>
+
+    <p>
+        <a th:href="@{/}">← Wróć do strony głównej bloga</a>
+    </p>
+</article>
+
 </body>
 </html>
