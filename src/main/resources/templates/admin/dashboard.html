@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Open Blog CMS - Panel administratora')"></head>
+<body th:replace="layout :: layout('Open Blog CMS - Panel administratora', ~{::article})">
+
+<article>
+    <h2>Panel administratora</h2>
+
+    <p>Witaj,
+        <span th:text="${currentUser.username}">admin</span>!
+        (rola: <span th:text="${currentRole}">2</span>)
+    </p>
+
+    <p>
+        Tu w przyszłości będzie pełny dashboard (lista postów, statystyki itd.).
+    </p>
+
+    <p>
+        <a th:href="@{/}">← Powrót do strony głównej</a>
+        |
+        <a th:href="@{/logout}">Wyloguj</a>
+    </p>
+</article>
+
+</body>
+</html>
+

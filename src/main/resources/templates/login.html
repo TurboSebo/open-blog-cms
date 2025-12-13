@@ -6,6 +6,10 @@
 <article>
     <h2>Panel logowania administratora</h2>
 
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}">Nieprawidłowy login lub hasło</p>
+    </div>
+
     <form action="/login" method="post">
         <label for="username"><b>Nazwa użytkownika</b></label>
         <input type="text" name="username" placeholder="Username..." id="username"><br/>
