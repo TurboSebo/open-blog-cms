@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Zawsze ładuj motyw na starcie
+    // 1. Zawsze ładuj motyw na starcie (aktualizacja z backendu + synchronizacja localStorage)
     loadTheme();
 
     // 2. Jeśli jesteśmy na stronie głównej (div #blog-feed istnieje)
@@ -42,8 +42,20 @@ const API = {
 /* =========================================
    FUNKCJE MOTYWU
    ========================================= */
+function saveThemeToLocalStorage(theme) {
+    try {
+        if (window.localStorage && theme) {
+            localStorage.setItem('obcms.theme', JSON.stringify(theme));
+        }
+    } catch (e) {
+        console.warn('Nie udało się zapisać motywu w localStorage:', e);
+    }
+}
+
 function loadTheme() {
     API.getTheme().then(theme => {
+        // Zapisz najnowszy motyw z backendu do localStorage (dla szybkiego zastosowania przy kolejnym wejściu)
+        saveThemeToLocalStorage(theme);
         applyTheme(theme);
         // Jeśli jesteśmy w panelu edycji, wypełnij inputy wartościami z bazy
         if (document.getElementById('theme-form')) {
@@ -92,8 +104,14 @@ function initThemeEditor() {
         const data = Object.fromEntries(formData.entries());
 
         API.saveTheme(data).then(() => {
+            // Po udanym zapisie aktualizujemy cache i stosujemy motyw
+            saveThemeToLocalStorage(data);
+            applyTheme(data);
             alert("Motyw zapisany w bazie!");
-        }).catch(err => alert("Błąd zapisu motywu"));
+        }).catch(err => {
+            console.error('Błąd zapisu motywu:', err);
+            alert("Błąd zapisu motywu");
+        });
     });
 }
 
@@ -201,4 +219,3 @@ function initAdminDashboard() {
     // Pierwsze ładowanie tabeli
     renderTable();
 }
-

@@ -30,6 +30,18 @@
     --c-hr: #334155;
 }
 
+/* Ukrycie zawartości do czasu zastosowania motywu, aby uniknąć mignięcia */
+html:not(.theme-ready) body {
+    opacity: 0;
+    visibility: hidden;
+}
+
+html.theme-ready body {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease-out;
+}
+
 /* =========================================
    2. Reset i Podstawy
    ========================================= */

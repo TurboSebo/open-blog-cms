@@ -4,6 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">Open Blog CMS</title>
+
+    <!-- Wczesne zastosowanie motywu z localStorage, aby uniknac migniecia domyslnego motywu -->
+    <script>
+        (function() {
+            var theme = null;
+            try {
+                if (window.localStorage) {
+                    var raw = localStorage.getItem('obcms.theme');
+                    if (raw) {
+                        theme = JSON.parse(raw);
+                    }
+                }
+            } catch (e) {
+                try {
+                    if (window.localStorage) {
+                        localStorage.removeItem('obcms.theme');
+                    }
+                } catch (ignore) {}
+            }
+
+            var defaultTheme = {
+                colorPrimary: '#3b82f6',
+                colorHeaderBg: '#1e293b',
+                colorAsideBg: '#1e293b',
+                colorMainBg: 'transparent',
+                colorSurface: '#1e293b',
+                colorBodyBg: '#0f172a',
+                colorText: '#e2e8f0'
+            };
+
+            var effective = theme || defaultTheme;
+            try {
+                var rootStyle = document.documentElement.style;
+                if (effective.colorPrimary) rootStyle.setProperty('--c-primary', effective.colorPrimary);
+                if (effective.colorHeaderBg) rootStyle.setProperty('--c-header-bg', effective.colorHeaderBg);
+                if (effective.colorAsideBg) rootStyle.setProperty('--c-aside-bg', effective.colorAsideBg);
+                if (effective.colorMainBg) rootStyle.setProperty('--c-main-bg', effective.colorMainBg);
+                if (effective.colorSurface) rootStyle.setProperty('--c-surface', effective.colorSurface);
+                if (effective.colorBodyBg) rootStyle.setProperty('--c-body-bg', effective.colorBodyBg);
+                if (effective.colorText) rootStyle.setProperty('--c-body-fg', effective.colorText);
+            } catch (e) {
+                // jesli cos pojdzie nie tak, po prostu zostawiamy domyslne kolory z CSS
+            }
+
+            document.documentElement.classList.add('theme-ready');
+        })();
+    </script>
+
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body th:fragment="layout(title, content)">
