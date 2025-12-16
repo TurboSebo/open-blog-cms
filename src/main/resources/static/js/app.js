@@ -254,6 +254,17 @@ function fillThemeForm(theme) {
 /* =========================================
    STRONA GŁÓWNA (INDEX)
    ========================================= */
+// Helper: generuje zajawkę z HTML (ograniczenie długości tekstu)
+function getPostExcerpt(htmlContent, maxLength = 300) {
+    if (!htmlContent) return '';
+    // Tworzymy tymczasowy element, aby wyrzucić tagi HTML
+    const tmp = document.createElement('div');
+    tmp.innerHTML = htmlContent;
+    const text = tmp.textContent || tmp.innerText || '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trimEnd() + '…';
+}
+
 function initHomePage() {
     const container = document.getElementById('blog-feed');
     API.getPosts().then(posts => {
@@ -269,10 +280,18 @@ function initHomePage() {
             const date = new Date(post.createdAt).toLocaleDateString();
             const article = document.createElement('article');
             article.style.marginBottom = '20px';
+
+            const excerpt = getPostExcerpt(post.content, 300);
+
             article.innerHTML = `
-                <h3 style="color: var(--c-primary)">${post.title}</h3>
+                <h3 style="color: var(--c-primary)">
+                    <a href="/post/${post.id}" style="color: inherit; text-decoration: none;">
+                        ${post.title}
+                    </a>
+                </h3>
                 <div class="muted" style="font-size: 0.8rem; margin-bottom: 10px;">${date}</div>
-                <div>${post.content}</div>
+                <div style="margin-bottom: 8px;">${excerpt}</div>
+                <a href="/post/${post.id}" style="font-size: 0.85rem;">Czytaj więcej →</a>
                 <hr>
             `;
             container.appendChild(article);
@@ -300,10 +319,14 @@ function initAdminDashboard() {
                 const badgeText = post.published ? 'Opublikowany' : 'Szkic';
                 const date = new Date(post.createdAt).toLocaleString();
 
+                const viewLink = post.published
+                    ? `<a href="/post/${post.id}" target="_blank" style="margin-left: 8px; font-size: 0.8rem;">Podgląd</a>`
+                    : '';
+
                 tr.innerHTML = `
                     <td>${post.id}</td>
                     <td style="font-weight: bold;">${post.title}</td>
-                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                    <td><span class="badge ${badgeClass}">${badgeText}</span>${viewLink}</td>
                     <td style="font-size: 0.85rem;">${date}</td>
                     <td>
                         <button class="btn-toggle" data-id="${post.id}" data-pub="${post.published}">

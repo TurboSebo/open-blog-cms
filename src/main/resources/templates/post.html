@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head(${post.title} + ' - Open Blog CMS')"></head>
+<body th:replace="layout :: layout(${post.title}, ~{::article})">
+
+<article>
+    <h2 th:text="${post.title}">Tytuł posta</h2>
+
+    <div class="muted" style="font-size: 0.85rem; margin-bottom: 15px;"
+         th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy HH:mm')}">
+        01.01.2025 12:00
+    </div>
+
+    <!-- Treść jako HTML wygenerowany przez Quill -->
+    <div th:utext="${post.content}">
+        Treść posta...
+    </div>
+
+    <hr>
+
+    <a th:href="@{/}" class="button secondary">← Wróć na stronę główną</a>
+</article>
+
+</body>
+</html>
+
