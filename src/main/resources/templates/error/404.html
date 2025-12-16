@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Strona nie została znaleziona - Open Blog CMS')"></head>
+<body th:replace="layout :: layout('Strona nie została znaleziona', ~{::article})">
+
+<article>
+    <h2>404 – Strona nie została znaleziona</h2>
+    <p class="muted" style="margin: 10px 0 20px;">
+        Wygląda na to, że szukany post lub strona nie istnieje albo został usunięty.
+    </p>
+
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <a th:href="@{/}" class="button">← Wróć na stronę główną</a>
+        <a th:href="@{/archive}" class="button secondary">Przeglądaj posty</a>
+    </div>
+</article>
+
+</body>
+</html>

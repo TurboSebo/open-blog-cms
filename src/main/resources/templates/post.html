@@ -7,9 +7,12 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h2 th:text="${post.title}">Tytuł posta</h2>
-            <div class="muted" style="font-size: 0.85rem; margin-bottom: 15px;"
+            <div class="muted" style="font-size: 0.85rem; margin-bottom: 8px;"
                  th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy HH:mm')}">
                 01.01.2025 12:00
+            </div>
+            <div th:if="${isAdmin} and !${post.published}" class="post-status-unpublished">
+                Ten post jest <strong>nieopublikowany</strong> i widoczny tylko dla administratora.
             </div>
         </div>
         <div th:if="${session.currentRole != null and session.currentRole >= 2}">

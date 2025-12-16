@@ -30,6 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================================
    LOGIKA API (Backend Communication)
+   UWAGA: jeśli chcesz bardziej szczegółowo obsługiwać błędy HTTP,
+   możesz opakować fetch w async/await i rzucać odpowiedzią, np.:
+   // const res = await fetch(...);
+   // if (!res.ok) throw res;
    ========================================= */
 const API = {
     getPosts: () => fetch('/api/posts').then(r => r.json()),
@@ -228,14 +232,21 @@ function initThemeEditor() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        API.saveTheme(data).then(() => {
+        API.saveTheme(data).then(response => {
+            if (!response.ok) {
+                throw response;
+            }
             // Po udanym zapisie aktualizujemy cache i stosujemy motyw
             saveThemeToLocalStorage(data);
             applyTheme(data);
-            alert("Motyw zapisany w bazie!");
+            showToast("Motyw zapisany w bazie!");
         }).catch(err => {
             console.error('Błąd zapisu motywu:', err);
-            alert("Błąd zapisu motywu");
+            if (err.status === 400) {
+                showToast("Błąd zapisu motywu: nieprawidłowe dane", 'error');
+            } else {
+                showToast(`Błąd zapisu motywu (kod: ${err.status})`, 'error');
+            }
         });
     });
 }
@@ -409,11 +420,11 @@ function initAddPostPage() {
 
         // Walidacja - czy użytkownik coś wpisał?
         if (!title) {
-            alert('Podaj tytuł posta.');
+            showToast('Podaj tytuł posta.', 'error');
             return;
         }
         if (quill.getText().trim().length === 0) {
-            alert('Treść posta nie może być pusta!');
+            showToast('Treść posta nie może być pusta!', 'error');
             return;
         }
 
@@ -425,16 +436,15 @@ function initAddPostPage() {
 
         API.createPost(postData)
             .then(response => {
-                if (response.ok) {
-                    alert('Post dodany pomyślnie!');
-                    window.location.href = '/admin';
-                } else {
-                    alert('Wystąpił błąd przy dodawaniu posta.');
+                if (!response.ok) {
+                    throw response;
                 }
+                showToast('Post dodany pomyślnie!');
+                window.location.href = '/admin';
             })
             .catch(err => {
                 console.error('Błąd przy dodawaniu posta:', err);
-                alert('Wystąpił błąd przy dodawaniu posta.');
+                showToast(`Wystąpił błąd przy dodawaniu posta (kod: ${err.status}).`, 'error');
             });
     });
 }
@@ -483,15 +493,15 @@ function initEditPostPage() {
         const content = quill.root.innerHTML;
 
         if (!id) {
-            alert('Brak ID posta.');
+            showToast('Brak ID posta.', 'error');
             return;
         }
         if (!title) {
-            alert('Podaj tytuł posta.');
+            showToast('Podaj tytuł posta.', 'error');
             return;
         }
         if (quill.getText().trim().length === 0) {
-            alert('Treść posta nie może być pusta!');
+            showToast('Treść posta nie może być pusta!', 'error');
             return;
         }
 
@@ -503,16 +513,38 @@ function initEditPostPage() {
 
         API.updatePost(id, postData)
             .then(response => {
-                if (response.ok) {
-                    alert('Post zaktualizowany pomyślnie!');
-                    window.location.href = '/admin';
-                } else {
-                    alert('Wystąpił błąd przy zapisywaniu zmian posta.');
+                if (!response.ok) {
+                    throw response;
                 }
+                showToast('Post zaktualizowany pomyślnie!');
+                window.location.href = '/admin';
             })
             .catch(err => {
                 console.error('Błąd przy edycji posta:', err);
-                alert('Wystąpił błąd przy edycji posta.');
+                showToast(`Wystąpił błąd przy edycji posta (kod: ${err.status}).`, 'error');
             });
     });
 }
+
+/* =========================================
+   TOAST (powiadomienia)
+   ========================================= */
+function showToast(message, type = 'success', timeout = 3000) {
+    const toast = document.getElementById('toast');
+    if (!toast) {
+        alert(message); // fallback
+        return;
+    }
+    toast.textContent = message;
+    toast.className = 'toast toast--' + (type === 'error' ? 'error' : 'success');
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, timeout);
+}
+
+// Przykład lepszej obsługi fetch dla createPost/updatePost można rozszerzyć tak:
+// API.createPost = async (data) => {
+//   const res = await fetch('/api/posts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+//   if (!res.ok) throw res; // w catch można sprawdzić res.status
+// };

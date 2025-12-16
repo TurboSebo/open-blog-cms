@@ -354,3 +354,34 @@ button.secondary {
 .hidden {
     display: none !important;
 }
+
+/* Toast / powiadomienia */
+.toast {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background-color: rgba(15, 23, 42, 0.95);
+    color: #e5e7eb;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
+    z-index: 50;
+}
+
+.toast--success {
+    border-left: 3px solid #22c55e;
+}
+
+.toast--error {
+    border-left: 3px solid #ef4444;
+}
+
+.post-status-unpublished {
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background-color: #7f1d1d;
+    color: #fee2e2;
+    font-size: 0.85rem;
+}

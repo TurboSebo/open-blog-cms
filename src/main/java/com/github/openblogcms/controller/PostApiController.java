@@ -2,7 +2,10 @@ package com.github.openblogcms.controller;
 
 import com.github.openblogcms.model.Post;
 import com.github.openblogcms.repository.PostRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -24,11 +27,17 @@ public class PostApiController {
 
     // POST /api/posts - Dodaj nowy post
     @PostMapping
-    public Post createPost(@RequestBody Post post) {
-        // Zmuszamy, by nowy post miał aktualne daty
+    public ResponseEntity<Post> createPost(@RequestBody Post post) {
+        if (post.getTitle() == null || post.getTitle().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tytuł posta jest wymagany");
+        }
+        if (post.getContent() == null || post.getContent().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Treść posta jest wymagana");
+        }
         post.setCreatedAt(java.time.LocalDateTime.now());
         post.setUpdatedAt(java.time.LocalDateTime.now());
-        return postRepository.save(post);
+        Post saved = postRepository.save(post);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     // PUT /api/posts/{id} - Edytuj post (np. zmiana tytułu lub publikacja)
@@ -36,21 +45,32 @@ public class PostApiController {
     public Post updatePost(@PathVariable Long id, @RequestBody Post updatedPostData) {
         return postRepository.findById(id)
                 .map(post -> {
-                    // Aktualizujemy pola tylko, jeśli przyszły w żądaniu
-                    if (updatedPostData.getTitle() != null) post.setTitle(updatedPostData.getTitle());
-                    if (updatedPostData.getContent() != null) post.setContent(updatedPostData.getContent());
-
-                    // Tutaj jest mały trik: w JS przesyłasz boolean, więc zawsze nadpisujemy
+                    if (updatedPostData.getTitle() != null) {
+                        if (updatedPostData.getTitle().isBlank()) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tytuł posta nie może być pusty");
+                        }
+                        post.setTitle(updatedPostData.getTitle());
+                    }
+                    if (updatedPostData.getContent() != null) {
+                        if (updatedPostData.getContent().isBlank()) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Treść posta nie może być pusta");
+                        }
+                        post.setContent(updatedPostData.getContent());
+                    }
                     post.setPublished(updatedPostData.isPublished());
-
+                    post.setUpdatedAt(java.time.LocalDateTime.now());
                     return postRepository.save(post);
                 })
-                .orElseThrow(() -> new RuntimeException("Post nie znaleziony o id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post nie znaleziony"));
     }
 
     // DELETE /api/posts/{id} - Usuń post
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePost(@PathVariable Long id) {
+        if (!postRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post nie znaleziony");
+        }
         postRepository.deleteById(id);
     }
 }
