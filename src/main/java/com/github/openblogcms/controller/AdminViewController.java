@@ -24,4 +24,19 @@ public class AdminViewController {
         model.addAttribute("currentRole", roleObj);
         return "admin/dashboard";
     }
+
+    @GetMapping("/admin/add-post")
+    public String addPostPage(HttpSession session, Model model) {
+        Object userObj = session.getAttribute("currentUser");
+        Object roleObj = session.getAttribute("currentRole");
+
+        if (!(userObj instanceof User) || !(roleObj instanceof Integer) || ((Integer) roleObj) < Role.ADMIN) {
+            return "redirect:/login";
+        }
+
+        User user = (User) userObj;
+        model.addAttribute("currentUser", user);
+        model.addAttribute("currentRole", roleObj);
+        return "admin/addpost";
+    }
 }

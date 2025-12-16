@@ -16,6 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('theme-form')) {
         initThemeEditor();
     }
+
+    // 5. NOWE: jeśli jesteśmy na stronie dodawania posta
+    if (document.getElementById('add-post-form')) {
+        initAddPostPage();
+    }
 });
 
 /* =========================================
@@ -25,6 +30,12 @@ const API = {
     getPosts: () => fetch('/api/posts').then(r => r.json()),
     getTheme: () => fetch('/api/theme').then(r => r.json()),
     saveTheme: (data) => fetch('/api/theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }),
+    // NOWE: Wysyłanie nowego posta
+    createPost: (data) => fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -327,4 +338,75 @@ function initAdminDashboard() {
 
     // Pierwsze ładowanie tabeli
     renderTable();
+}
+
+/* =========================================
+   DODAWANIE POSTA (Z QUILL JS)
+   ========================================= */
+function initAddPostPage() {
+    const form = document.getElementById('add-post-form');
+    if (!form) return;
+
+    // 1. Inicjalizacja Quilla
+    if (typeof Quill === 'undefined') {
+        console.error("Quill JS nie został załadowany!");
+        return;
+    }
+
+    const quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Zacznij pisać swoją historię...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'image', 'code-block'],
+                ['clean']
+            ]
+        }
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const titleEl = document.getElementById('title');
+        const publishedEl = document.getElementById('published');
+
+        const title = titleEl ? titleEl.value.trim() : '';
+        const published = publishedEl ? publishedEl.checked : false;
+
+        // 2. Pobieramy HTML z Quilla
+        const content = quill.root.innerHTML;
+
+        // Walidacja - czy użytkownik coś wpisał?
+        if (!title) {
+            alert('Podaj tytuł posta.');
+            return;
+        }
+        if (quill.getText().trim().length === 0) {
+            alert('Treść posta nie może być pusta!');
+            return;
+        }
+
+        const postData = {
+            title,
+            content,
+            published
+        };
+
+        API.createPost(postData)
+            .then(response => {
+                if (response.ok) {
+                    alert('Post dodany pomyślnie!');
+                    window.location.href = '/admin';
+                } else {
+                    alert('Wystąpił błąd przy dodawaniu posta.');
+                }
+            })
+            .catch(err => {
+                console.error('Błąd przy dodawaniu posta:', err);
+                alert('Wystąpił błąd przy dodawaniu posta.');
+            });
+    });
 }
