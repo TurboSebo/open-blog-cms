@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout :: head('Panel administratora - Open Blog CMS')"></head>
-<body th:replace="layout :: layout('Panel administratora - Open Blog CMS', ~{::article})">
+<head th:replace="layout :: head('Panel administracyjny - Open Blog CMS')"></head>
+<body th:replace="layout :: layout('Panel administracyjny - Open Blog CMS', ~{::article})">
 
 <article>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Panel administratora</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Panel administracyjny</h2>
         <div>
-            Witaj, <strong th:text="${currentUser.username}">User</strong>!
-            <a th:href="@{/logout}" class="button secondary" style="font-size: 0.8rem; margin-left: 10px;">Wyloguj</a>
+            <a th:href="@{/admin/settings}" class="button secondary" style="margin-right: 8px;">Ustawienia treści</a>
+            <a th:href="@{/admin/add-post}" class="button">+ Dodaj nowy post</a>
         </div>
     </div>
 
@@ -17,7 +17,6 @@
     <section>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3>Twoje wpisy</h3>
-            <a href="/admin/add-post" class="button"> + Dodaj nowy post</a>
         </div>
 
         <div style="overflow-x: auto;">

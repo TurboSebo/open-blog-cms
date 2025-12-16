@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Ustawienia treści - Open Blog CMS')"></head>
+<body th:replace="layout :: layout('Ustawienia treści - Open Blog CMS', ~{::article})">
+
+<article>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Ustawienia treści</h2>
+        <a th:href="@{/admin}" class="button secondary">← Wróć do panelu</a>
+    </div>
+
+    <div th:if="${successMessage}" class="post-status-unpublished" style="background-color:#166534; color:#dcfce7;">
+        <span th:text="${successMessage}">Zapisano ustawienia</span>
+    </div>
+
+    <form method="post" th:action="@{/admin/settings}" style="margin-top: 15px;">
+        <label for="siteTitle">Tytuł strony (nagłówek H1)</label>
+        <input type="text" id="siteTitle" name="siteTitle" th:value="${siteTitle}" required>
+
+        <label for="titleAlign">Wyrównanie tytułu (H1)</label>
+        <select id="titleAlign" name="titleAlign">
+            <option value="left" th:selected="${siteTitleAlign} == 'left'">Do lewej</option>
+            <option value="center" th:selected="${siteTitleAlign} == 'center'">Do środka</option>
+            <option value="right" th:selected="${siteTitleAlign} == 'right'">Do prawej</option>
+        </select>
+
+        <label for="aboutAuthor">Sekcja "O autorze" (HTML, sidebar)</label>
+        <textarea id="aboutAuthor" name="aboutAuthor" rows="4" th:text="${aboutAuthor}"></textarea>
+
+        <label for="aboutContent">Strona "O blogu" (HTML treści strony)</label>
+        <textarea id="aboutContent" name="aboutContent" rows="8" th:text="${aboutContent}"></textarea>
+
+        <div class="toolbar" style="margin-top: 15px;">
+            <button type="submit">Zapisz ustawienia</button>
+        </div>
+    </form>
+</article>
+
+</body>
+</html>

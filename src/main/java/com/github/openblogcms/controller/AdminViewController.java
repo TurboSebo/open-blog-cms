@@ -4,31 +4,51 @@ import com.github.openblogcms.model.Post;
 import com.github.openblogcms.model.Role;
 import com.github.openblogcms.model.User;
 import com.github.openblogcms.repository.PostRepository;
+import com.github.openblogcms.service.ConfigService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AdminViewController {
 
     private final PostRepository postRepository;
+    private final ConfigService configService;
 
-    public AdminViewController(PostRepository postRepository) {
+    public AdminViewController(PostRepository postRepository, ConfigService configService) {
         this.postRepository = postRepository;
+        this.configService = configService;
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        Object userObj = session.getAttribute("currentUser");
+        Object roleObj = session.getAttribute("currentRole");
+        return (userObj instanceof User) && (roleObj instanceof Integer) && ((Integer) roleObj) >= Role.ADMIN;
+    }
+
+    private void addLayoutConfig(Model model) {
+        String siteTitle = configService.getValue(ConfigService.KEY_SITE_TITLE, "Open Blog CMS");
+        String aboutAuthor = configService.getValue(ConfigService.KEY_SITE_ABOUT_AUTHOR,
+                "To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.");
+        String titleAlign = configService.getValue(ConfigService.KEY_SITE_TITLE_ALIGN, "left");
+        model.addAttribute("siteTitle", siteTitle);
+        model.addAttribute("aboutAuthor", aboutAuthor);
+        model.addAttribute("siteTitleAlign", titleAlign);
     }
 
     @GetMapping("/admin")
     public String dashboard(HttpSession session, Model model) {
-        Object userObj = session.getAttribute("currentUser");
-        Object roleObj = session.getAttribute("currentRole");
-
-        if (!(userObj instanceof User) || !(roleObj instanceof Integer) || ((Integer) roleObj) < Role.ADMIN) {
+        if (!isAdmin(session)) {
             return "redirect:/login";
         }
+        User user = (User) session.getAttribute("currentUser");
+        Object roleObj = session.getAttribute("currentRole");
 
-        User user = (User) userObj;
+        addLayoutConfig(model);
         model.addAttribute("currentUser", user);
         model.addAttribute("currentRole", roleObj);
         return "admin/dashboard";
@@ -36,14 +56,13 @@ public class AdminViewController {
 
     @GetMapping("/admin/add-post")
     public String addPostPage(HttpSession session, Model model) {
-        Object userObj = session.getAttribute("currentUser");
-        Object roleObj = session.getAttribute("currentRole");
-
-        if (!(userObj instanceof User) || !(roleObj instanceof Integer) || ((Integer) roleObj) < Role.ADMIN) {
+        if (!isAdmin(session)) {
             return "redirect:/login";
         }
+        User user = (User) session.getAttribute("currentUser");
+        Object roleObj = session.getAttribute("currentRole");
 
-        User user = (User) userObj;
+        addLayoutConfig(model);
         model.addAttribute("currentUser", user);
         model.addAttribute("currentRole", roleObj);
         return "admin/addpost";
@@ -51,20 +70,65 @@ public class AdminViewController {
 
     @GetMapping("/admin/edit-post/{id}")
     public String editPostPage(@PathVariable Long id, HttpSession session, Model model) {
-        Object userObj = session.getAttribute("currentUser");
-        Object roleObj = session.getAttribute("currentRole");
-
-        if (!(userObj instanceof User) || !(roleObj instanceof Integer) || ((Integer) roleObj) < Role.ADMIN) {
+        if (!isAdmin(session)) {
             return "redirect:/login";
         }
-
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post nie znaleziony"));
 
-        User user = (User) userObj;
+        User user = (User) session.getAttribute("currentUser");
+        Object roleObj = session.getAttribute("currentRole");
+
+        addLayoutConfig(model);
         model.addAttribute("currentUser", user);
         model.addAttribute("currentRole", roleObj);
         model.addAttribute("post", post);
         return "admin/editpost";
+    }
+
+    @GetMapping("/admin/settings")
+    public String settingsPage(HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+        User user = (User) session.getAttribute("currentUser");
+        Object roleObj = session.getAttribute("currentRole");
+
+        String siteTitle = configService.getValue(ConfigService.KEY_SITE_TITLE, "Open Blog CMS");
+        String aboutAuthor = configService.getValue(ConfigService.KEY_SITE_ABOUT_AUTHOR,
+                "To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.");
+        String aboutContent = configService.getValue(ConfigService.KEY_PAGE_ABOUT,
+                "<p>To jest prosty blog, na którym możesz publikować swoje przemyślenia.</p>");
+        String titleAlign = configService.getValue(ConfigService.KEY_SITE_TITLE_ALIGN, "left");
+
+        addLayoutConfig(model);
+        model.addAttribute("currentUser", user);
+        model.addAttribute("currentRole", roleObj);
+        model.addAttribute("siteTitle", siteTitle);
+        model.addAttribute("aboutAuthor", aboutAuthor);
+        model.addAttribute("aboutContent", aboutContent);
+        model.addAttribute("siteTitleAlign", titleAlign);
+        return "admin/settings";
+    }
+
+    @PostMapping("/admin/settings")
+    public String saveSettings(@RequestParam String siteTitle,
+                               @RequestParam(required = false) String titleAlign,
+                               @RequestParam(required = false) String aboutAuthor,
+                               @RequestParam(required = false) String aboutContent,
+                               HttpSession session,
+                               Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        configService.setValue(ConfigService.KEY_SITE_TITLE, siteTitle);
+        configService.setValue(ConfigService.KEY_SITE_ABOUT_AUTHOR, aboutAuthor != null ? aboutAuthor : "");
+        configService.setValue(ConfigService.KEY_PAGE_ABOUT, aboutContent != null ? aboutContent : "");
+        configService.setValue(ConfigService.KEY_SITE_TITLE_ALIGN,
+                (titleAlign != null && !titleAlign.isBlank()) ? titleAlign : "left");
+
+        model.addAttribute("successMessage", "Zapisano ustawienia.");
+        return settingsPage(session, model);
     }
 }

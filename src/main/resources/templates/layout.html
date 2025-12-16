@@ -58,8 +58,11 @@
 
 <div id="container">
     <header>
-        <a href="/" style="text-decoration: none; color: inherit;">
-            <h1>Open Blog CMS</h1>
+        <a href="/" style="text-decoration: none; color: inherit; display:block;">
+            <h1 th:text="${siteTitle} != null ? ${siteTitle} : 'Open Blog CMS'"
+                th:style="${siteTitleAlign} == 'center' ? 'text-align:center;' : (${siteTitleAlign} == 'right' ? 'text-align:right;' : 'text-align:left;')">
+                Open Blog CMS
+            </h1>
         </a>
     </header>
 
@@ -86,7 +89,9 @@
                 <hr>
 
                 <h3>O autorze</h3>
-                <p>To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.</p>
+                <p th:utext="${aboutAuthor} != null ? ${aboutAuthor} : 'To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.'">
+                    To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.
+                </p>
             </nav>
         </aside>
 

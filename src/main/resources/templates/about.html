@@ -4,22 +4,11 @@
 <body th:replace="layout :: layout('O blogu - Open Blog CMS', ~{::article})">
 
 <article>
-    <h2>O tym blogu</h2>
-    <p>
-        Ten blog jest prostym systemem CMS zbudowanym w Spring Boot i Thymeleaf.
-        Ma panel administracyjny do zarządzania wpisami oraz możliwość zmiany motywu kolorystycznego.
-    </p>
-
-    <p>
-        Kod źródłowy jest dostępny na GitHubie. Projekt jest pomyślany jako baza do nauki Spring Boot
-        oraz jako lekki szkielet pod własnego bloga.
-    </p>
-
-    <p>
-        <a th:href="@{/}">← Wróć do strony głównej</a>
-    </p>
+    <h2>O blogu</h2>
+    <section th:utext="${aboutContent}">
+        <p>To jest prosty blog, na którym możesz publikować swoje przemyślenia.</p>
+    </section>
 </article>
 
 </body>
 </html>
-

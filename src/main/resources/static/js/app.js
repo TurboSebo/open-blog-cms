@@ -345,6 +345,7 @@ function initAdminDashboard() {
                     <td><span class="badge ${badgeClass}">${badgeText}</span>${viewLink}</td>
                     <td style="font-size: 0.85rem;">${date}</td>
                     <td>
+                        <a href="/admin/edit-post/${post.id}" class="button secondary" style="margin-right: 6px;">Edytuj</a>
                         <button class="btn-toggle" data-id="${post.id}" data-pub="${post.published}">
                             ${post.published ? 'Ukryj' : 'Publikuj'}
                         </button>
