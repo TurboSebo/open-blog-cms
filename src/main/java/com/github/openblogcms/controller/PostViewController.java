@@ -21,10 +21,10 @@ public class PostViewController {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post nie znaleziony"));
 
-        // ukrywanie nieopublikowanych postów
-        // if (!post.isPublished()) {
-        //     return "redirect:/";
-        // }
+        // Ukrywanie nieopublikowanych postów dla zwykłych użytkowników
+        if (!post.isPublished()) {
+            return "redirect:/";
+        }
 
         model.addAttribute("post", post);
         return "post";

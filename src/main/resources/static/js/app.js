@@ -21,6 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('add-post-form')) {
         initAddPostPage();
     }
+
+    // 6. NOWE: jeśli jesteśmy na stronie edycji posta
+    if (document.getElementById('edit-post-form')) {
+        initEditPostPage();
+    }
 });
 
 /* =========================================
@@ -316,7 +321,7 @@ function initAdminDashboard() {
             posts.forEach(post => {
                 const tr = document.createElement('tr');
                 const badgeClass = post.published ? 'published' : 'draft';
-                const badgeText = post.published ? 'Opublikowany' : 'Szkic';
+                const badgeText = post.published ? 'Opublikowany' : 'Nieopublikowane';
                 const date = new Date(post.createdAt).toLocaleString();
 
                 const viewLink = post.published
@@ -430,6 +435,84 @@ function initAddPostPage() {
             .catch(err => {
                 console.error('Błąd przy dodawaniu posta:', err);
                 alert('Wystąpił błąd przy dodawaniu posta.');
+            });
+    });
+}
+
+/* =========================================
+   EDYCJA POSTA (Z QUILL JS)
+   ========================================= */
+function initEditPostPage() {
+    const form = document.getElementById('edit-post-form');
+    if (!form) return;
+
+    if (typeof Quill === 'undefined') {
+        console.error("Quill JS nie został załadowany (edycja posta)!");
+        return;
+    }
+
+    const editorContainer = document.getElementById('editor-container');
+    const quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Edytuj treść posta...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'image', 'code-block'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Upewnij się, że treść z serwera jest w edytorze (Thymeleaf już ją wstawił do DIV-a)
+    // Quill zainicjalizuje się na istniejącym HTML-u w #editor-container.
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const idEl = document.getElementById('post-id');
+        const titleEl = document.getElementById('title');
+        const publishedEl = document.getElementById('published');
+
+        const id = idEl ? idEl.value : null;
+        const title = titleEl ? titleEl.value.trim() : '';
+        const published = publishedEl ? publishedEl.checked : false;
+
+        const content = quill.root.innerHTML;
+
+        if (!id) {
+            alert('Brak ID posta.');
+            return;
+        }
+        if (!title) {
+            alert('Podaj tytuł posta.');
+            return;
+        }
+        if (quill.getText().trim().length === 0) {
+            alert('Treść posta nie może być pusta!');
+            return;
+        }
+
+        const postData = {
+            title,
+            content,
+            published
+        };
+
+        API.updatePost(id, postData)
+            .then(response => {
+                if (response.ok) {
+                    alert('Post zaktualizowany pomyślnie!');
+                    window.location.href = '/admin';
+                } else {
+                    alert('Wystąpił błąd przy zapisywaniu zmian posta.');
+                }
+            })
+            .catch(err => {
+                console.error('Błąd przy edycji posta:', err);
+                alert('Wystąpił błąd przy edycji posta.');
             });
     });
 }

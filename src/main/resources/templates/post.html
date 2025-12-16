@@ -4,14 +4,19 @@
 <body th:replace="layout :: layout(${post.title}, ~{::article})">
 
 <article>
-    <h2 th:text="${post.title}">Tytuł posta</h2>
-
-    <div class="muted" style="font-size: 0.85rem; margin-bottom: 15px;"
-         th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy HH:mm')}">
-        01.01.2025 12:00
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 th:text="${post.title}">Tytuł posta</h2>
+            <div class="muted" style="font-size: 0.85rem; margin-bottom: 15px;"
+                 th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy HH:mm')}">
+                01.01.2025 12:00
+            </div>
+        </div>
+        <div th:if="${session.currentRole != null and session.currentRole >= 2}">
+            <a th:href="@{'/admin/edit-post/' + ${post.id}}" class="button secondary" style="font-size: 0.85rem;">Edytuj post</a>
+        </div>
     </div>
 
-    <!-- Treść jako HTML wygenerowany przez Quill -->
     <div th:utext="${post.content}">
         Treść posta...
     </div>
@@ -23,4 +28,3 @@
 
 </body>
 </html>
-

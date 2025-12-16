@@ -70,6 +70,7 @@
                 <ul>
                     <li><a th:href="@{/}">Strona główna</a></li>
                     <li><a th:href="@{/about}">O blogu</a></li>
+                    <li><a th:href="@{/archive}">Przeglądaj posty</a></li>
 
                     <span th:if="${session.currentUser == null}">
                         <a th:href="@{/login}">Zaloguj</a>

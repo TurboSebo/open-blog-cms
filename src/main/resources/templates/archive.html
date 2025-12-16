@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('Przeglądaj posty - Open Blog CMS')"></head>
+<body th:replace="layout :: layout('Przeglądaj posty', ~{::article})">
+
+<article>
+    <h2>Przeglądaj posty</h2>
+    <p class="muted" style="margin-bottom: 20px;">Przeglądaj wszystkie opublikowane posty z podziałem na miesiące.</p>
+
+    <div th:if="${#maps.isEmpty(postsByMonth)}">
+        <p class="muted">Brak postów do wyświetlenia.</p>
+    </div>
+
+    <div th:each="entry : ${postsByMonth}">
+        <h3 th:text="${entry.key}" style="margin-top: 20px; margin-bottom: 10px;"></h3>
+        <ul>
+            <li th:each="post : ${entry.value}" style="margin-bottom: 6px;">
+                <a th:href="@{'/post/' + ${post.id}}" th:text="${post.title}"></a>
+                <span class="muted" style="font-size: 0.8rem; margin-left: 8px;"
+                      th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy')}"></span>
+            </li>
+        </ul>
+        <hr>
+    </div>
+
+</article>
+
+</body>
+</html>
