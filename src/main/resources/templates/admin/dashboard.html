@@ -1,27 +1,87 @@
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout :: head('Open Blog CMS - Panel administratora')"></head>
-<body th:replace="layout :: layout('Open Blog CMS - Panel administratora', ~{::article})">
+<head th:replace="layout :: head('Panel administratora - Open Blog CMS')"></head>
+<body th:replace="layout :: layout('Panel administratora - Open Blog CMS', ~{::article})">
 
 <article>
-    <h2>Panel administratora</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Panel administratora</h2>
+        <div>
+            Witaj, <strong th:text="${currentUser.username}">User</strong>!
+            <a th:href="@{/logout}" class="button secondary" style="font-size: 0.8rem; margin-left: 10px;">Wyloguj</a>
+        </div>
+    </div>
 
-    <p>Witaj,
-        <span th:text="${currentUser.username}">admin</span>!
-        (rola: <span th:text="${currentRole}">2</span>)
-    </p>
+    <hr>
 
-    <p>
-        Tu w przyszłości będzie pełny dashboard (lista postów, statystyki itd.).
-    </p>
+    <section>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3>Twoje wpisy</h3>
+            <a href="/admin/add-post" class="button"> + Dodaj nowy post</a>
+        </div>
 
-    <p>
-        <a th:href="@{/}">← Powrót do strony głównej</a>
-        |
-        <a th:href="@{/logout}">Wyloguj</a>
-    </p>
+        <div style="overflow-x: auto;">
+            <table class="table" id="posts-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tytuł</th>
+                    <th>Status</th>
+                    <th>Data</th>
+                    <th>Akcje</th>
+                </tr>
+                </thead>
+                <tbody id="posts-table-body">
+                <tr><td colspan="5" class="muted">Ładowanie danych...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <hr>
+
+    <section>
+        <h3>Ustawienia wyglądu</h3>
+        <p class="muted">Zmiany są widoczne globalnie dla wszystkich użytkowników.</p>
+
+        <form id="theme-form" style="margin-top: 20px;">
+            <div class="settings-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                <div>
+                    <label>Kolor główny</label>
+                    <input type="color" id="color-primary" name="colorPrimary">
+                </div>
+                <div>
+                    <label>Tło nagłówka</label>
+                    <input type="color" id="color-header-bg" name="colorHeaderBg">
+                </div>
+                <div>
+                    <label>Tło panelu bocznego</label>
+                    <input type="color" id="color-aside-bg" name="colorAsideBg">
+                </div>
+                <div>
+                    <label>Tło główne (pod spodem)</label>
+                    <input type="color" id="color-main-bg" name="colorMainBg">
+                </div>
+                <div>
+                    <label>Tło kart / artykułów</label>
+                    <input type="color" id="color-surface" name="colorSurface">
+                </div>
+                <div>
+                    <label>Tło strony (body)</label>
+                    <input type="color" id="color-body-bg" name="colorBodyBg">
+                </div>
+                <div>
+                    <label>Kolor tekstu</label>
+                    <input type="color" id="color-text" name="colorText">
+                </div>
+            </div>
+
+            <div class="toolbar" style="margin-top: 20px;">
+                <button type="submit">Zapisz motyw w bazie</button>
+            </div>
+        </form>
+    </section>
 </article>
 
 </body>
 </html>
-
