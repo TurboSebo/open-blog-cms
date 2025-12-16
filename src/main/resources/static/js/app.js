@@ -40,6 +40,64 @@ const API = {
 };
 
 /* =========================================
+   PREDEFINIOWANE MOTYWY
+   ========================================= */
+const PREDEFINED_THEMES = [
+    {
+        id: 'light',
+        label: 'Jasny',
+        description: 'Jasne tła, ciemny tekst – czytelny w dzień.',
+        presetClass: 'preset-light',
+        colorPrimary: '#2563eb',
+        colorHeaderBg: '#e5e7eb',
+        colorAsideBg: '#f3f4f6',
+        colorMainBg: 'transparent',
+        colorSurface: '#ffffff',
+        colorBodyBg: '#f9fafb',
+        colorText: '#111827'
+    },
+    {
+        id: 'dark',
+        label: 'Ciemny',
+        description: 'Obecny motyw domyślny – dobry na wieczór.',
+        presetClass: 'preset-dark',
+        colorPrimary: '#3b82f6',
+        colorHeaderBg: '#1e293b',
+        colorAsideBg: '#1e293b',
+        colorMainBg: 'transparent',
+        colorSurface: '#1e293b',
+        colorBodyBg: '#0f172a',
+        colorText: '#e2e8f0'
+    },
+    {
+        id: 'solarized',
+        label: 'Solarized',
+        description: 'Ciepły, kontrastowy motyw inspirowany Solarized.',
+        presetClass: 'preset-solarized',
+        colorPrimary: '#b58900',
+        colorHeaderBg: '#002b36',
+        colorAsideBg: '#073642',
+        colorMainBg: 'transparent',
+        colorSurface: '#002b36',
+        colorBodyBg: '#001f27',
+        colorText: '#eee8d5'
+    },
+    {
+        id: 'colorful',
+        label: 'Kolorowy',
+        description: 'Mocniejsze kolory akcentów, blog „na kolorowo”.',
+        presetClass: 'preset-colorful',
+        colorPrimary: '#ec4899',
+        colorHeaderBg: '#4f46e5',
+        colorAsideBg: '#1e293b',
+        colorMainBg: 'transparent',
+        colorSurface: '#020617',
+        colorBodyBg: '#020617',
+        colorText: '#e5e7eb'
+    }
+];
+
+/* =========================================
    FUNKCJE MOTYWU
    ========================================= */
 function saveThemeToLocalStorage(theme) {
@@ -65,6 +123,7 @@ function loadTheme() {
 }
 
 function applyTheme(theme) {
+    if (!theme) return;
     const root = document.documentElement.style;
     if(theme.colorPrimary) root.setProperty('--c-primary', theme.colorPrimary);
     if(theme.colorHeaderBg) root.setProperty('--c-header-bg', theme.colorHeaderBg);
@@ -77,6 +136,56 @@ function applyTheme(theme) {
 
 function initThemeEditor() {
     const form = document.getElementById('theme-form');
+
+    // Predefiniowane motywy – generowanie kafelków
+    const presetsContainer = document.getElementById('theme-presets');
+    if (presetsContainer) {
+        PREDEFINED_THEMES.forEach(theme => {
+            const el = document.createElement('button');
+            el.type = 'button';
+            el.className = `theme-preset ${theme.presetClass}`;
+            el.setAttribute('data-theme-id', theme.id);
+
+            el.innerHTML = `
+                <span class="theme-preset__name">${theme.label}</span>
+                <span class="theme-preset__desc">${theme.description}</span>
+                <div class="theme-preset__preview">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+
+            el.addEventListener('click', () => {
+                // Ustaw wartości w formularzu
+                const map = {
+                    'color-primary': theme.colorPrimary,
+                    'color-header-bg': theme.colorHeaderBg,
+                    'color-aside-bg': theme.colorAsideBg,
+                    'color-main-bg': theme.colorMainBg,
+                    'color-surface': theme.colorSurface,
+                    'color-body-bg': theme.colorBodyBg,
+                    'color-text': theme.colorText
+                };
+
+                Object.entries(map).forEach(([id, value]) => {
+                    const input = document.getElementById(id);
+                    if (input && value) {
+                        input.value = value;
+                    }
+                });
+
+                // Podgląd na żywo
+                applyTheme(theme);
+
+                // Zaznaczenie wybranego kafelka
+                presetsContainer
+                    .querySelectorAll('.theme-preset')
+                    .forEach(btn => btn.classList.remove('theme-preset--selected'));
+                el.classList.add('theme-preset--selected');
+            });
+
+            presetsContainer.appendChild(el);
+        });
+    }
 
     // Podgląd na żywo przy zmianie koloru w inputach
     form.addEventListener('input', (e) => {

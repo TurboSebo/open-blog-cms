@@ -256,6 +256,79 @@ button.secondary {
     font-size: 0.85rem;
 }
 
+/* Predefiniowane motywy (kafelki) */
+.theme-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.theme-preset {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--c-border);
+    min-width: 140px;
+    cursor: pointer;
+    background-color: rgba(15, 23, 42, 0.7);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.theme-preset:hover {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+}
+
+.theme-preset--selected {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.7);
+}
+
+.theme-preset__name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.theme-preset__desc {
+    font-size: 0.75rem;
+    color: var(--c-aside-fg);
+    margin-bottom: 8px;
+}
+
+.theme-preset__preview {
+    height: 22px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+}
+
+.theme-preset__preview span {
+    flex: 1;
+}
+
+/* Przykładowe kolory podglądu (nie muszą być 1:1 z realnym motywem) */
+.preset-light span:nth-child(1) { background: #0f172a; }
+.preset-light span:nth-child(2) { background: #e5e7eb; }
+.preset-light span:nth-child(3) { background: #2563eb; }
+
+.preset-dark span:nth-child(1) { background: #020617; }
+.preset-dark span:nth-child(2) { background: #1f2937; }
+.preset-dark span:nth-child(3) { background: #38bdf8; }
+
+.preset-solarized span:nth-child(1) { background: #002b36; }
+.preset-solarized span:nth-child(2) { background: #073642; }
+.preset-solarized span:nth-child(3) { background: #b58900; }
+
+.preset-colorful span:nth-child(1) { background: #111827; }
+.preset-colorful span:nth-child(2) { background: #4f46e5; }
+.preset-colorful span:nth-child(3) { background: #ec4899; }
+
 /* =========================================
    5. Responsywność (Telefony)
    ========================================= */
