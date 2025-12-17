@@ -35,9 +35,15 @@ public class AdminViewController {
         String aboutAuthor = configService.getValue(ConfigService.KEY_SITE_ABOUT_AUTHOR,
                 "To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.");
         String titleAlign = configService.getValue(ConfigService.KEY_SITE_TITLE_ALIGN, "left");
+        String siteTitleColor = configService.getValue(ConfigService.KEY_SITE_TITLE_COLOR, "#ffffff");
+        String siteTitleSize = configService.getValue(ConfigService.KEY_SITE_TITLE_SIZE, "32");
+        String authorAvatar = configService.getValue(ConfigService.KEY_SITE_AUTHOR_AVATAR, "");
         model.addAttribute("siteTitle", siteTitle);
         model.addAttribute("aboutAuthor", aboutAuthor);
         model.addAttribute("siteTitleAlign", titleAlign);
+        model.addAttribute("siteTitleColor", siteTitleColor);
+        model.addAttribute("siteTitleSize", siteTitleSize);
+        model.addAttribute("authorAvatar", authorAvatar);
     }
 
     @GetMapping("/admin")
@@ -100,6 +106,9 @@ public class AdminViewController {
         String aboutContent = configService.getValue(ConfigService.KEY_PAGE_ABOUT,
                 "<p>To jest prosty blog, na którym możesz publikować swoje przemyślenia.</p>");
         String titleAlign = configService.getValue(ConfigService.KEY_SITE_TITLE_ALIGN, "left");
+        String siteTitleColor = configService.getValue(ConfigService.KEY_SITE_TITLE_COLOR, "#ffffff");
+        String siteTitleSize = configService.getValue(ConfigService.KEY_SITE_TITLE_SIZE, "32");
+        String authorAvatar = configService.getValue(ConfigService.KEY_SITE_AUTHOR_AVATAR, "");
 
         addLayoutConfig(model);
         model.addAttribute("currentUser", user);
@@ -108,6 +117,9 @@ public class AdminViewController {
         model.addAttribute("aboutAuthor", aboutAuthor);
         model.addAttribute("aboutContent", aboutContent);
         model.addAttribute("siteTitleAlign", titleAlign);
+        model.addAttribute("siteTitleColor", siteTitleColor);
+        model.addAttribute("siteTitleSize", siteTitleSize);
+        model.addAttribute("authorAvatar", authorAvatar);
         return "admin/settings";
     }
 
@@ -116,6 +128,9 @@ public class AdminViewController {
                                @RequestParam(required = false) String titleAlign,
                                @RequestParam(required = false) String aboutAuthor,
                                @RequestParam(required = false) String aboutContent,
+                               @RequestParam(required = false) String siteTitleColor,
+                               @RequestParam(required = false) String siteTitleSize,
+                               @RequestParam(required = false) String authorAvatar,
                                HttpSession session,
                                Model model) {
         if (!isAdmin(session)) {
@@ -127,6 +142,12 @@ public class AdminViewController {
         configService.setValue(ConfigService.KEY_PAGE_ABOUT, aboutContent != null ? aboutContent : "");
         configService.setValue(ConfigService.KEY_SITE_TITLE_ALIGN,
                 (titleAlign != null && !titleAlign.isBlank()) ? titleAlign : "left");
+        configService.setValue(ConfigService.KEY_SITE_TITLE_COLOR,
+                (siteTitleColor != null && !siteTitleColor.isBlank()) ? siteTitleColor : "#ffffff");
+        configService.setValue(ConfigService.KEY_SITE_TITLE_SIZE,
+                (siteTitleSize != null && !siteTitleSize.isBlank()) ? siteTitleSize : "32");
+        configService.setValue(ConfigService.KEY_SITE_AUTHOR_AVATAR,
+                authorAvatar != null ? authorAvatar : "");
 
         model.addAttribute("successMessage", "Zapisano ustawienia.");
         return settingsPage(session, model);

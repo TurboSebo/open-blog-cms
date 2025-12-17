@@ -15,6 +15,9 @@ public class ConfigService {
     public static final String KEY_SITE_ABOUT_AUTHOR = "site.aboutAuthor";
     public static final String KEY_PAGE_ABOUT = "page.about";
     public static final String KEY_SITE_TITLE_ALIGN = "site.titleAlign"; // left, center, right
+    public static final String KEY_SITE_TITLE_COLOR = "site.titleColor"; // np. #ffffff
+    public static final String KEY_SITE_TITLE_SIZE = "site.titleSize";   // np. 32 (px)
+    public static final String KEY_SITE_AUTHOR_AVATAR = "site.authorAvatar"; // placeholder na URL/identyfikator avatara
 
     public ConfigService(ConfigRepository configRepository) {
         this.configRepository = configRepository;

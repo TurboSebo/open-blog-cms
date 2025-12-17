@@ -60,7 +60,8 @@
     <header>
         <a href="/" style="text-decoration: none; color: inherit; display:block;">
             <h1 th:text="${siteTitle} != null ? ${siteTitle} : 'Open Blog CMS'"
-                th:style="${siteTitleAlign} == 'center' ? 'text-align:center;' : (${siteTitleAlign} == 'right' ? 'text-align:right;' : 'text-align:left;')">
+                th:style="${siteTitleAlign} == 'center' ? 'text-align:center;' : (${siteTitleAlign} == 'right' ? 'text-align:right;' : 'text-align:left;') + ' '"
+                th:styleappend="(${siteTitleColor} != null ? 'color:' + ${siteTitleColor} + ';' : '') + (${siteTitleSize} != null ? 'font-size:' + ${siteTitleSize} + 'px;' : '')">
                 Open Blog CMS
             </h1>
         </a>
@@ -89,6 +90,14 @@
                 <hr>
 
                 <h3>O autorze</h3>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                    <div style="width:80px; height:80px; border-radius:8px; background:rgba(148,163,184,0.15); border:1px solid rgba(148,163,184,0.5); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                        <span th:if="${#strings.isEmpty(authorAvatar)}" style="font-size:0.75rem; color:#94a3b8; text-align:center; padding:4px;">Avatar</span>
+                        <img th:if="${!#strings.isEmpty(authorAvatar)}" th:src="${authorAvatar}"
+                             alt="Avatar autora" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                </div>
+
                 <p th:utext="${aboutAuthor} != null ? ${aboutAuthor} : 'To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.'">
                     To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.
                 </p>

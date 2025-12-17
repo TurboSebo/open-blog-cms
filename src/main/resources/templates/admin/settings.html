@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout :: head('Ustawienia treści - Open Blog CMS')"></head>
-<body th:replace="layout :: layout('Ustawienia treści - Open Blog CMS', ~{::article})">
+<head th:replace="~{layout :: head('Ustawienia treści - Open Blog CMS')}"></head>
+<body th:replace="~{layout :: layout('Ustawienia treści - Open Blog CMS', ~{::article})}">
 
 <article>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -24,11 +24,32 @@
             <option value="right" th:selected="${siteTitleAlign} == 'right'">Do prawej</option>
         </select>
 
+        <label for="siteTitleColor">Kolor tytułu (H1)</label>
+        <input type="color" id="siteTitleColor" name="siteTitleColor" th:value="${siteTitleColor}">
+
+        <label for="siteTitleSize">Rozmiar tytułu (H1) w pikselach</label>
+        <input type="number" id="siteTitleSize" name="siteTitleSize" min="16" max="72" step="1" th:value="${siteTitleSize}">
+
         <label for="aboutAuthor">Sekcja "O autorze" (HTML, sidebar)</label>
         <textarea id="aboutAuthor" name="aboutAuthor" rows="4" th:text="${aboutAuthor}"></textarea>
 
         <label for="aboutContent">Strona "O blogu" (HTML treści strony)</label>
         <textarea id="aboutContent" name="aboutContent" rows="8" th:text="${aboutContent}"></textarea>
+
+        <hr style="margin: 25px 0;">
+
+        <h3>Avatar autora (rezerwacja)</h3>
+        <p class="muted" style="font-size: 0.9rem;">Na razie możesz ustawić tylko tekstowy placeholder lub URL obrazka. W przyszłości tutaj pojawi się upload pliku.</p>
+
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom: 10px;">
+            <div style="width:80px; height:80px; border-radius:8px; background:rgba(148,163,184,0.2); border:1px dashed rgba(148,163,184,0.8); display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:#94a3b8; text-align:center;">
+                80×80
+            </div>
+            <div style="flex:1;">
+                <label for="authorAvatar" style="display:block; margin-bottom:4px;">Placeholder / URL avatara</label>
+                <input type="text" id="authorAvatar" name="authorAvatar" th:value="${authorAvatar}" placeholder="np. https://twoj-serwer.pl/avatar.png lub dowolny opis">
+            </div>
+        </div>
 
         <div class="toolbar" style="margin-top: 15px;">
             <button type="submit">Zapisz ustawienia</button>

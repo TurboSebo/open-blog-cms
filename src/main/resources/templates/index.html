@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout :: head('Open Blog CMS')"></head>
-<body th:replace="layout :: layout('Open Blog CMS', ~{::article})">
+<head th:replace="~{layout :: head('Open Blog CMS')}"></head>
+<body th:replace="~{layout :: layout('Open Blog CMS', ~{::article})}">
 
 <article>
     <h2>Najnowsze wpisy</h2>
