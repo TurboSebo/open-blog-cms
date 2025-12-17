@@ -30,22 +30,6 @@ public class AdminViewController {
         return (userObj instanceof User) && (roleObj instanceof Integer) && ((Integer) roleObj) >= Role.ADMIN;
     }
 
-    private void addLayoutConfig(Model model) {
-        String siteTitle = configService.getValue(ConfigService.KEY_SITE_TITLE, "Open Blog CMS");
-        String aboutAuthor = configService.getValue(ConfigService.KEY_SITE_ABOUT_AUTHOR,
-                "To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.");
-        String titleAlign = configService.getValue(ConfigService.KEY_SITE_TITLE_ALIGN, "left");
-        String siteTitleColor = configService.getValue(ConfigService.KEY_SITE_TITLE_COLOR, "#ffffff");
-        String siteTitleSize = configService.getValue(ConfigService.KEY_SITE_TITLE_SIZE, "32");
-        String authorAvatar = configService.getValue(ConfigService.KEY_SITE_AUTHOR_AVATAR, "");
-        model.addAttribute("siteTitle", siteTitle);
-        model.addAttribute("aboutAuthor", aboutAuthor);
-        model.addAttribute("siteTitleAlign", titleAlign);
-        model.addAttribute("siteTitleColor", siteTitleColor);
-        model.addAttribute("siteTitleSize", siteTitleSize);
-        model.addAttribute("authorAvatar", authorAvatar);
-    }
-
     @GetMapping("/admin")
     public String dashboard(HttpSession session, Model model) {
         if (!isAdmin(session)) {
@@ -54,7 +38,6 @@ public class AdminViewController {
         User user = (User) session.getAttribute("currentUser");
         Object roleObj = session.getAttribute("currentRole");
 
-        addLayoutConfig(model);
         model.addAttribute("currentUser", user);
         model.addAttribute("currentRole", roleObj);
         return "admin/dashboard";
@@ -68,7 +51,6 @@ public class AdminViewController {
         User user = (User) session.getAttribute("currentUser");
         Object roleObj = session.getAttribute("currentRole");
 
-        addLayoutConfig(model);
         model.addAttribute("currentUser", user);
         model.addAttribute("currentRole", roleObj);
         return "admin/addpost";
@@ -85,7 +67,6 @@ public class AdminViewController {
         User user = (User) session.getAttribute("currentUser");
         Object roleObj = session.getAttribute("currentRole");
 
-        addLayoutConfig(model);
         model.addAttribute("currentUser", user);
         model.addAttribute("currentRole", roleObj);
         model.addAttribute("post", post);
@@ -100,26 +81,10 @@ public class AdminViewController {
         User user = (User) session.getAttribute("currentUser");
         Object roleObj = session.getAttribute("currentRole");
 
-        String siteTitle = configService.getValue(ConfigService.KEY_SITE_TITLE, "Open Blog CMS");
-        String aboutAuthor = configService.getValue(ConfigService.KEY_SITE_ABOUT_AUTHOR,
-                "To jest prosty blog zbudowany na Spring Boot i czystym JavaScript.");
-        String aboutContent = configService.getValue(ConfigService.KEY_PAGE_ABOUT,
-                "<p>To jest prosty blog, na którym możesz publikować swoje przemyślenia.</p>");
-        String titleAlign = configService.getValue(ConfigService.KEY_SITE_TITLE_ALIGN, "left");
-        String siteTitleColor = configService.getValue(ConfigService.KEY_SITE_TITLE_COLOR, "#ffffff");
-        String siteTitleSize = configService.getValue(ConfigService.KEY_SITE_TITLE_SIZE, "32");
-        String authorAvatar = configService.getValue(ConfigService.KEY_SITE_AUTHOR_AVATAR, "");
-
-        addLayoutConfig(model);
+        // LayoutAttributesAdvice dostarcza: siteTitle, aboutAuthor, aboutContent, siteTitleAlign,
+        // siteTitleColor, siteTitleSize, authorAvatar
         model.addAttribute("currentUser", user);
         model.addAttribute("currentRole", roleObj);
-        model.addAttribute("siteTitle", siteTitle);
-        model.addAttribute("aboutAuthor", aboutAuthor);
-        model.addAttribute("aboutContent", aboutContent);
-        model.addAttribute("siteTitleAlign", titleAlign);
-        model.addAttribute("siteTitleColor", siteTitleColor);
-        model.addAttribute("siteTitleSize", siteTitleSize);
-        model.addAttribute("authorAvatar", authorAvatar);
         return "admin/settings";
     }
 
@@ -145,7 +110,7 @@ public class AdminViewController {
         configService.setValue(ConfigService.KEY_SITE_TITLE_COLOR,
                 (siteTitleColor != null && !siteTitleColor.isBlank()) ? siteTitleColor : "#ffffff");
         configService.setValue(ConfigService.KEY_SITE_TITLE_SIZE,
-                (siteTitleSize != null && !siteTitleSize.isBlank()) ? siteTitleSize : "32");
+            (siteTitleSize != null && !siteTitleSize.isBlank()) ? siteTitleSize : "32");
         configService.setValue(ConfigService.KEY_SITE_AUTHOR_AVATAR,
                 authorAvatar != null ? authorAvatar : "");
 

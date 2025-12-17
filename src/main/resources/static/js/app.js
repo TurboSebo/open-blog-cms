@@ -26,6 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('edit-post-form')) {
         initEditPostPage();
     }
+
+    // 7. NOWE: inicjalizacja uploadu avatara, jeśli przycisk istnieje
+    if (document.getElementById('upload-author-avatar')) {
+        initAvatarUpload();
+    }
 });
 
 /* =========================================
@@ -248,6 +253,61 @@ function initThemeEditor() {
                 showToast(`Błąd zapisu motywu (kod: ${err.status})`, 'error');
             }
         });
+    });
+}
+
+/* =========================================
+   UPLOAD AVATARA (Settings)
+   ========================================= */
+function initAvatarUpload() {
+    const avatarFileInput = document.getElementById('authorAvatarFile');
+    const avatarUrlInput = document.getElementById('authorAvatar');
+    const avatarUploadBtn = document.getElementById('upload-author-avatar');
+
+    if (!avatarFileInput || !avatarUrlInput || !avatarUploadBtn) return;
+
+    avatarUploadBtn.addEventListener('click', () => {
+        const file = avatarFileInput.files && avatarFileInput.files[0];
+
+        if (!file) {
+            showToast('Wybierz plik avatara.', 'error');
+            return;
+        }
+        if (!/^image\//.test(file.type)) {
+            showToast('Wybrany plik nie jest obrazkiem.', 'error');
+            return;
+        }
+
+        const fd = new FormData();
+        fd.append('file', file);
+
+        const originalText = avatarUploadBtn.innerText;
+        avatarUploadBtn.innerText = 'Wgrywanie...';
+        avatarUploadBtn.disabled = true;
+
+        fetch('/api/images/upload', {
+            method: 'POST',
+            body: fd
+        })
+            .then(res => {
+                if (!res.ok) throw res;
+                return res.json();
+            })
+            .then(result => {
+                if (!result || !result.url) {
+                    throw new Error('Brak URL w odpowiedzi API obrazków');
+                }
+                avatarUrlInput.value = result.url;
+                showToast('Avatar został wgrany. Kliknij "Zapisz ustawienia", aby zatwierdzić.');
+            })
+            .catch(err => {
+                console.error('Błąd uploadu avatara:', err);
+                showToast('Nie udało się wgrać avatara.', 'error');
+            })
+            .finally(() => {
+                avatarUploadBtn.innerText = originalText;
+                avatarUploadBtn.disabled = false;
+            });
     });
 }
 

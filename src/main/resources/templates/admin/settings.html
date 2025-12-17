@@ -13,7 +13,7 @@
         <span th:text="${successMessage}">Zapisano ustawienia</span>
     </div>
 
-    <form method="post" th:action="@{/admin/settings}" style="margin-top: 15px;">
+    <form id="theme-form" method="post" th:action="@{/admin/settings}" style="margin-top: 15px;">
         <label for="siteTitle">Tytuł strony (nagłówek H1)</label>
         <input type="text" id="siteTitle" name="siteTitle" th:value="${siteTitle}" required>
 
@@ -38,16 +38,24 @@
 
         <hr style="margin: 25px 0;">
 
-        <h3>Avatar autora (rezerwacja)</h3>
-        <p class="muted" style="font-size: 0.9rem;">Na razie możesz ustawić tylko tekstowy placeholder lub URL obrazka. W przyszłości tutaj pojawi się upload pliku.</p>
+        <h3>Avatar autora</h3>
+        <p class="muted" style="font-size: 0.9rem;">Możesz podać URL lub wgrać plik graficzny 80×80, który będzie używany jako zdjęcie autora.</p>
 
         <div style="display:flex; align-items:center; gap:16px; margin-bottom: 10px;">
-            <div style="width:80px; height:80px; border-radius:8px; background:rgba(148,163,184,0.2); border:1px dashed rgba(148,163,184,0.8); display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:#94a3b8; text-align:center;">
-                80×80
+            <div style="width:80px; height:80px; border-radius:8px; background:rgba(148,163,184,0.2); border:1px dashed rgba(148,163,184,0.8); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                <span style="font-size:0.75rem; color:#94a3b8; text-align:center; padding:4px;">Podgląd</span>
             </div>
-            <div style="flex:1;">
-                <label for="authorAvatar" style="display:block; margin-bottom:4px;">Placeholder / URL avatara</label>
-                <input type="text" id="authorAvatar" name="authorAvatar" th:value="${authorAvatar}" placeholder="np. https://twoj-serwer.pl/avatar.png lub dowolny opis">
+            <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                <div>
+                    <label for="authorAvatar" style="display:block; margin-bottom:4px;">URL avatara</label>
+                    <input type="text" id="authorAvatar" name="authorAvatar" th:value="${authorAvatar}" placeholder="np. https://twoj-serwer.pl/avatar.png">
+                </div>
+                <div>
+                    <label for="authorAvatarFile" style="display:block; margin-bottom:4px;">Wgraj plik avatara (opcjonalnie)</label>
+                    <input type="file" id="authorAvatarFile" accept="image/*" style="width:100%;">
+                    <button type="button" id="upload-author-avatar" class="button secondary" style="margin-top:6px;">Wgraj obrazek i ustaw URL</button>
+                    <p class="muted" style="font-size: 0.8rem; margin-top:4px;">Po wgraniu pliku URL zostanie automatycznie wpisany w pole powyżej.</p>
+                </div>
             </div>
         </div>
 

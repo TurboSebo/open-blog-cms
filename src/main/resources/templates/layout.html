@@ -76,9 +76,7 @@
                     <li><a th:href="@{/about}">O blogu</a></li>
                     <li><a th:href="@{/archive}">Przeglądaj posty</a></li>
 
-                    <span th:if="${session.currentUser == null}">
-                        <a th:href="@{/login}">Zaloguj</a>
-                    </span>
+
                     <span th:if="${session.currentUser != null}">
                         <a th:href="@{/logout}">Wyloguj</a>
                     </span>
@@ -92,7 +90,7 @@
                 <h3>O autorze</h3>
                 <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
                     <div style="width:80px; height:80px; border-radius:8px; background:rgba(148,163,184,0.15); border:1px solid rgba(148,163,184,0.5); display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                        <span th:if="${#strings.isEmpty(authorAvatar)}" style="font-size:0.75rem; color:#94a3b8; text-align:center; padding:4px;">Avatar</span>
+                        <span th:if="${#strings.isEmpty(authorAvatar)}" style="font-size:0.75rem; color:#94a3b8; text-align:center; padding:4px;">Autor</span>
                         <img th:if="${!#strings.isEmpty(authorAvatar)}" th:src="${authorAvatar}"
                              alt="Avatar autora" style="width:100%; height:100%; object-fit:cover;">
                     </div>
