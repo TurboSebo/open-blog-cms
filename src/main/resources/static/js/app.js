@@ -381,7 +381,7 @@ function initAdminDashboard() {
 }
 
 /* =========================================
-   DODAWANIE POSTA (Z QUILL JS + UPLOAD OBRAZKÓW)
+   DODAWANIE POSTA (Z QUILL JS + UPLOAD OBRAZKÓW + TRYB HTML)
    ========================================= */
 function initAddPostPage() {
     const form = document.getElementById('add-post-form');
@@ -408,9 +408,57 @@ function initAddPostPage() {
         }
     });
 
+    const htmlTextarea = document.getElementById('editor-raw-html');
+    const btnQuill = document.getElementById('btn-editor-quill');
+    const btnHtml = document.getElementById('btn-editor-html');
+    const editorContainer = document.getElementById('editor-container');
+
+    let currentMode = 'quill'; // 'quill' lub 'html'
+
+    function updateEditorModeButtons() {
+        if (!btnQuill || !btnHtml) return;
+        if (currentMode === 'quill') {
+            btnQuill.classList.add('button--active');
+            btnHtml.classList.remove('button--active');
+        } else {
+            btnHtml.classList.add('button--active');
+            btnQuill.classList.remove('button--active');
+        }
+    }
+
+    if (btnQuill) {
+        btnQuill.addEventListener('click', () => {
+            if (currentMode === 'quill') return;
+            // Z HTML → Quill: wstrzykujemy zawartość textarea do edytora
+            quill.root.innerHTML = htmlTextarea.value || '';
+            htmlTextarea.style.display = 'none';
+            if (editorContainer) editorContainer.style.display = 'block';
+            currentMode = 'quill';
+            updateEditorModeButtons();
+        });
+    }
+
+    if (btnHtml) {
+        btnHtml.addEventListener('click', () => {
+            if (currentMode === 'html') return;
+            // Z Quilla → HTML: bierzemy HTML z edytora
+            htmlTextarea.value = quill.root.innerHTML;
+            if (editorContainer) editorContainer.style.display = 'none';
+            htmlTextarea.style.display = 'block';
+            currentMode = 'html';
+            updateEditorModeButtons();
+        });
+    }
+
+    updateEditorModeButtons();
+
     // Custom handler obrazków – zamiast base64 wysyłamy na backend
     const toolbar = quill.getModule('toolbar');
     toolbar.addHandler('image', () => {
+        if (currentMode !== 'quill') {
+            showToast('Wstawianie obrazków działa tylko w trybie edytora wizualnego.', 'error');
+            return;
+        }
         selectLocalImage();
     });
 
@@ -470,13 +518,23 @@ function initAddPostPage() {
 
         const title = titleEl ? titleEl.value.trim() : '';
         const published = publishedEl ? publishedEl.checked : false;
-        const content = quill.root.innerHTML;
+
+        let content;
+        let plainText;
+        if (currentMode === 'quill') {
+            content = quill.root.innerHTML;
+            plainText = quill.getText().trim();
+        } else {
+            content = htmlTextarea.value || '';
+            // proste usuwanie tagów HTML do walidacji
+            plainText = content.replace(/<[^>]*>/g, '').trim();
+        }
 
         if (!title) {
             showToast('Podaj tytuł posta.', 'error');
             return;
         }
-        if (quill.getText().trim().length === 0) {
+        if (!plainText.length) {
             showToast('Treść posta nie może być pusta!', 'error');
             return;
         }
@@ -499,7 +557,7 @@ function initAddPostPage() {
 }
 
 /* =========================================
-   EDYCJA POSTA (Z QUILL JS)
+   EDYCJA POSTA (Z QUILL JS + TRYB HTML)
    ========================================= */
 function initEditPostPage() {
     const form = document.getElementById('edit-post-form');
@@ -511,6 +569,10 @@ function initEditPostPage() {
     }
 
     const editorContainer = document.getElementById('editor-container');
+    const htmlTextarea = document.getElementById('editor-raw-html');
+    const btnQuill = document.getElementById('btn-editor-quill');
+    const btnHtml = document.getElementById('btn-editor-html');
+
     const quill = new Quill('#editor-container', {
         theme: 'snow',
         placeholder: 'Edytuj treść posta...',
@@ -525,8 +587,42 @@ function initEditPostPage() {
         }
     });
 
-    // Upewnij się, że treść z serwera jest w edytorze (Thymeleaf już ją wstawił do DIV-a)
-    // Quill zainicjalizuje się na istniejącym HTML-u w #editor-container.
+    let currentMode = 'quill';
+
+    function updateEditorModeButtonsEdit() {
+        if (!btnQuill || !btnHtml) return;
+        if (currentMode === 'quill') {
+            btnQuill.classList.add('button--active');
+            btnHtml.classList.remove('button--active');
+        } else {
+            btnHtml.classList.add('button--active');
+            btnQuill.classList.remove('button--active');
+        }
+    }
+
+    if (btnQuill) {
+        btnQuill.addEventListener('click', () => {
+            if (currentMode === 'quill') return;
+            quill.root.innerHTML = htmlTextarea.value || '';
+            htmlTextarea.style.display = 'none';
+            if (editorContainer) editorContainer.style.display = 'block';
+            currentMode = 'quill';
+            updateEditorModeButtonsEdit();
+        });
+    }
+
+    if (btnHtml) {
+        btnHtml.addEventListener('click', () => {
+            if (currentMode === 'html') return;
+            htmlTextarea.value = quill.root.innerHTML;
+            if (editorContainer) editorContainer.style.display = 'none';
+            htmlTextarea.style.display = 'block';
+            currentMode = 'html';
+            updateEditorModeButtonsEdit();
+        });
+    }
+
+    updateEditorModeButtonsEdit();
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -539,7 +635,15 @@ function initEditPostPage() {
         const title = titleEl ? titleEl.value.trim() : '';
         const published = publishedEl ? publishedEl.checked : false;
 
-        const content = quill.root.innerHTML;
+        let content;
+        let plainText;
+        if (currentMode === 'quill') {
+            content = quill.root.innerHTML;
+            plainText = quill.getText().trim();
+        } else {
+            content = htmlTextarea.value || '';
+            plainText = content.replace(/<[^>]*>/g, '').trim();
+        }
 
         if (!id) {
             showToast('Brak ID posta.', 'error');
@@ -549,16 +653,12 @@ function initEditPostPage() {
             showToast('Podaj tytuł posta.', 'error');
             return;
         }
-        if (quill.getText().trim().length === 0) {
+        if (!plainText.length) {
             showToast('Treść posta nie może być pusta!', 'error');
             return;
         }
 
-        const postData = {
-            title,
-            content,
-            published
-        };
+        const postData = { title, content, published };
 
         API.updatePost(id, postData)
             .then(response => {
