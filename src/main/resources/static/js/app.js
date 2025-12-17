@@ -381,13 +381,12 @@ function initAdminDashboard() {
 }
 
 /* =========================================
-   DODAWANIE POSTA (Z QUILL JS)
+   DODAWANIE POSTA (Z QUILL JS + UPLOAD OBRAZKÓW)
    ========================================= */
 function initAddPostPage() {
     const form = document.getElementById('add-post-form');
     if (!form) return;
 
-    // 1. Inicjalizacja Quilla
     if (typeof Quill === 'undefined') {
         console.error("Quill JS nie został załadowany!");
         return;
@@ -397,15 +396,71 @@ function initAddPostPage() {
         theme: 'snow',
         placeholder: 'Zacznij pisać swoją historię...',
         modules: {
-            toolbar: [
-                [{ header: [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                ['link', 'image', 'code-block'],
-                ['clean']
-            ]
+            toolbar: {
+                container: [
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['link', 'image', 'code-block'],
+                    ['clean']
+                ]
+            }
         }
     });
+
+    // Custom handler obrazków – zamiast base64 wysyłamy na backend
+    const toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', () => {
+        selectLocalImage();
+    });
+
+    function selectLocalImage() {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = () => {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            if (!/^image\//.test(file.type)) {
+                showToast('Wybrany plik nie jest obrazkiem.', 'error');
+                return;
+            }
+            saveImageToServer(file);
+        };
+    }
+
+    function saveImageToServer(file) {
+        const fd = new FormData();
+        fd.append('file', file);
+
+        fetch('/api/images/upload', {
+            method: 'POST',
+            body: fd
+        })
+            .then(res => {
+                if (!res.ok) throw res;
+                return res.json();
+            })
+            .then(result => {
+                if (!result || !result.url) {
+                    throw new Error('Brak URL w odpowiedzi API obrazków');
+                }
+                insertImageToEditor(result.url);
+            })
+            .catch(err => {
+                console.error('Błąd uploadu obrazka:', err);
+                showToast('Nie udało się wgrać zdjęcia.', 'error');
+            });
+    }
+
+    function insertImageToEditor(url) {
+        const range = quill.getSelection(true);
+        const index = range ? range.index : quill.getLength();
+        quill.insertEmbed(index, 'image', url, 'user');
+        quill.setSelection(index + 1, 0, 'user');
+    }
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -415,11 +470,8 @@ function initAddPostPage() {
 
         const title = titleEl ? titleEl.value.trim() : '';
         const published = publishedEl ? publishedEl.checked : false;
-
-        // 2. Pobieramy HTML z Quilla
         const content = quill.root.innerHTML;
 
-        // Walidacja - czy użytkownik coś wpisał?
         if (!title) {
             showToast('Podaj tytuł posta.', 'error');
             return;
@@ -429,11 +481,7 @@ function initAddPostPage() {
             return;
         }
 
-        const postData = {
-            title,
-            content,
-            published
-        };
+        const postData = { title, content, published };
 
         API.createPost(postData)
             .then(response => {
