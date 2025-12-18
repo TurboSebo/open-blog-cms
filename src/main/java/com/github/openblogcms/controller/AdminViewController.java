@@ -4,6 +4,7 @@ import com.github.openblogcms.model.Post;
 import com.github.openblogcms.model.Role;
 import com.github.openblogcms.model.User;
 import com.github.openblogcms.repository.PostRepository;
+import com.github.openblogcms.repository.UserRepository;
 import com.github.openblogcms.service.ConfigService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -18,10 +19,14 @@ public class AdminViewController {
 
     private final PostRepository postRepository;
     private final ConfigService configService;
+    private final UserRepository userRepository;
 
-    public AdminViewController(PostRepository postRepository, ConfigService configService) {
+    public AdminViewController(PostRepository postRepository,
+                               ConfigService configService,
+                               UserRepository userRepository) {
         this.postRepository = postRepository;
         this.configService = configService;
+        this.userRepository = userRepository;
     }
 
     private boolean isAdmin(HttpSession session) {
@@ -116,5 +121,66 @@ public class AdminViewController {
 
         model.addAttribute("successMessage", "Zapisano ustawienia.");
         return settingsPage(session, model);
+    }
+
+    @GetMapping("/admin/account")
+    public String accountSettingsPage(HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+        User user = (User) session.getAttribute("currentUser");
+        Object roleObj = session.getAttribute("currentRole");
+
+        model.addAttribute("currentUser", user);
+        model.addAttribute("currentRole", roleObj);
+        return "admin/account";
+    }
+
+    @PostMapping("/admin/account")
+    public String changePassword(@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 HttpSession session,
+                                 Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        User user = (User) session.getAttribute("currentUser");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Object roleObj = session.getAttribute("currentRole");
+
+        if (!user.getPassword().equals(currentPassword)) {
+            model.addAttribute("errorMessage", "Aktualne hasło jest nieprawidłowe.");
+            model.addAttribute("currentUser", user);
+            model.addAttribute("currentRole", roleObj);
+            return "admin/account";
+        }
+
+        if (newPassword == null || newPassword.length() < 8) {
+            model.addAttribute("errorMessage", "Nowe hasło jest za krótkie (min. 8 znaków).");
+            model.addAttribute("currentUser", user);
+            model.addAttribute("currentRole", roleObj);
+            return "admin/account";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("errorMessage", "Nowe hasło i potwierdzenie muszą być takie same.");
+            model.addAttribute("currentUser", user);
+            model.addAttribute("currentRole", roleObj);
+            return "admin/account";
+        }
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        session.setAttribute("currentUser", user);
+
+        model.addAttribute("successMessage", "Hasło zostało pomyślnie zmienione.");
+        model.addAttribute("currentUser", user);
+        model.addAttribute("currentRole", roleObj);
+        return "admin/account";
     }
 }

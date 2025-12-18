@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Ustawienia konta - Open Blog CMS')}"></head>
+<body th:replace="~{layout :: layout('Ustawienia konta - Open Blog CMS', ~{::article})}">
+
+<article>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Ustawienia konta</h2>
+        <a th:href="@{/admin}" class="button secondary">Wróć do panelu</a>
+    </div>
+
+    <div th:if="${errorMessage}" class="post-status-unpublished" style="background-color:#b91c1c; color:#fee2e2;">
+        <span th:text="${errorMessage}">Wystąpił błąd</span>
+    </div>
+
+    <div th:if="${successMessage}" class="post-status-unpublished" style="background-color:#166534; color:#dcfce7;">
+        <span th:text="${successMessage}">Hasło zostało zmienione</span>
+    </div>
+
+    <form method="post" th:action="@{/admin/account}" style="margin-top: 15px; max-width: 480px;">
+        <label for="currentPassword">Aktualne hasło</label>
+        <input type="password" id="currentPassword" name="currentPassword" required>
+
+        <label for="newPassword">Nowe hasło (min. 8 znaków)</label>
+        <input type="password" id="newPassword" name="newPassword" minlength="8" required>
+
+        <label for="confirmPassword">Powtórz nowe hasło</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" required>
+
+        <p class="muted" style="font-size: 0.9rem; margin-top: 8px;">
+            Zmień hasło, za pomocą którego logujesz się do panelu administratora. Pamiętaj, aby używać silnych haseł, które zawierają kombinację liter, cyfr i znaków specjalnych dla lepszego bezpieczeństwa.
+        </p>
+
+        <div class="toolbar" style="margin-top: 15px;">
+            <button type="submit">Zmień hasło</button>
+        </div>
+    </form>
+</article>
+
+</body>
+</html>
