@@ -396,19 +396,22 @@ function initAdminDashboard() {
                 const badgeText = post.published ? '<i class="demo-icon icon-users"></i>' : '<i class="demo-icon icon-lock"></i>';
                 const date = new Date(post.createdAt).toLocaleString();
 
-                const viewLink = `<a href="/post/${post.id}" target="_blank" style="margin-left: 8px; font-size: 0.8rem;"><i class="demo-icon icon-eye"></i></a>`;
+                const viewLink = `<a href="/post/${post.id}" target="_blank" class="icon-btn" title="Zobacz post"><i class="icon-eye"></i></a>`;
 
                 tr.innerHTML = `
                     <td>${post.id}</td>
                     <td style="font-weight: bold;">${post.title}</td>
-                    <td><span class="badge ${badgeClass}">${badgeText}</span>${viewLink}</td>
+                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                     <td style="font-size: 0.85rem;">${date}</td>
                     <td>
-                        <a href="/admin/edit-post/${post.id}" class="button secondary" style="margin-right: 6px;"><i class="demo-icon icon-pencil"></i></a>
-                        <button class="btn-toggle" data-id="${post.id}" data-pub="${post.published}">
-                            ${post.published ? '<i class="demo-icon icon-minus-squared"></i>' : '<i class="demo-icon icon-link-ext-alt"></i>'}
-                        </button>
-                        <button class="btn-delete" style="background-color: #ef4444;" data-id="${post.id}"><i class="demo-icon icon-trash-empty"></i></button>
+                        <div class="actions">
+                            ${viewLink}
+                            <a href="/admin/edit-post/${post.id}" class="icon-btn" title="Edytuj post"><i class="icon-pencil"></i></a>
+                            <button class="btn-toggle icon-btn" data-id="${post.id}" data-pub="${post.published}" title="${post.published ? 'Ukryj post' : 'Opublikuj post'}">
+                                <i class="${post.published ? 'icon-minus-squared' : 'icon-link-ext-alt'}"></i>
+                            </button>
+                            <button class="btn-delete icon-btn delete" data-id="${post.id}" title="Usuń post"><i class="icon-trash"></i></button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
