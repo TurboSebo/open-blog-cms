@@ -35,10 +35,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================================
    LOGIKA API (Backend Communication)
-   UWAGA: jeśli chcesz bardziej szczegółowo obsługiwać błędy HTTP,
-   możesz opakować fetch w async/await i rzucać odpowiedzią, np.:
+  Do bardziej szczegółowej obsługi błędów HTTP,
+   można opakować fetch w async/await i rzucać odpowiedzią, np.:
    // const res = await fetch(...);
    // if (!res.ok) throw res;
+   na razie jednak zostanę przy prostszej wersji.
    ========================================= */
 const API = {
     getPosts: () => fetch('/api/posts').then(r => r.json()),
@@ -330,7 +331,7 @@ function fillThemeForm(theme) {
 /* =========================================
    STRONA GŁÓWNA (INDEX)
    ========================================= */
-// Helper: generuje zajawkę z HTML (ograniczenie długości tekstu)
+// Helper: generuje skrót posta (usuwając tagi HTML)
 function getPostExcerpt(htmlContent, maxLength = 300) {
     if (!htmlContent) return '';
     // Tworzymy tymczasowy element, aby wyrzucić tagi HTML
@@ -392,12 +393,10 @@ function initAdminDashboard() {
             posts.forEach(post => {
                 const tr = document.createElement('tr');
                 const badgeClass = post.published ? 'published' : 'draft';
-                const badgeText = post.published ? 'Opublikowany' : 'Nieopublikowane';
+                const badgeText = post.published ? '<i class="demo-icon icon-users"></i>' : '<i class="demo-icon icon-lock"></i>';
                 const date = new Date(post.createdAt).toLocaleString();
 
-                const viewLink = post.published
-                    ? `<a href="/post/${post.id}" target="_blank" style="margin-left: 8px; font-size: 0.8rem;">Podgląd</a>`
-                    : '';
+                const viewLink = `<a href="/post/${post.id}" target="_blank" style="margin-left: 8px; font-size: 0.8rem;"><i class="demo-icon icon-eye"></i></a>`;
 
                 tr.innerHTML = `
                     <td>${post.id}</td>
@@ -405,11 +404,11 @@ function initAdminDashboard() {
                     <td><span class="badge ${badgeClass}">${badgeText}</span>${viewLink}</td>
                     <td style="font-size: 0.85rem;">${date}</td>
                     <td>
-                        <a href="/admin/edit-post/${post.id}" class="button secondary" style="margin-right: 6px;">Edytuj</a>
+                        <a href="/admin/edit-post/${post.id}" class="button secondary" style="margin-right: 6px;"><i class="demo-icon icon-pencil"></i></a>
                         <button class="btn-toggle" data-id="${post.id}" data-pub="${post.published}">
-                            ${post.published ? 'Ukryj' : 'Publikuj'}
+                            ${post.published ? '<i class="demo-icon icon-minus-squared"></i>' : '<i class="demo-icon icon-link-ext-alt"></i>'}
                         </button>
-                        <button class="btn-delete" style="background-color: #ef4444;" data-id="${post.id}">Usuń</button>
+                        <button class="btn-delete" style="background-color: #ef4444;" data-id="${post.id}"><i class="demo-icon icon-trash-empty"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -501,7 +500,7 @@ function initAddPostPage() {
     if (btnHtml) {
         btnHtml.addEventListener('click', () => {
             if (currentMode === 'html') return;
-            // Z Quilla → HTML: bierzemy HTML z edytora
+            // Z Quilla → HTML: bierze HTML z edytora
             htmlTextarea.value = quill.root.innerHTML;
             if (editorContainer) editorContainer.style.display = 'none';
             htmlTextarea.style.display = 'block';
