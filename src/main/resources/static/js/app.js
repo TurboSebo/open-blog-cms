@@ -393,7 +393,7 @@ function initAdminDashboard() {
             posts.forEach(post => {
                 const tr = document.createElement('tr');
                 const badgeClass = post.published ? 'published' : 'draft';
-                const badgeText = post.published ? '<i class="demo-icon icon-users"></i>' : '<i class="demo-icon icon-lock"></i>';
+                const badgeText = post.published ? '<i class="demo-icon icon-users" title="Post publiczny"></i>' : '<i class="demo-icon icon-lock" title="Post nieopublikowany"></i>';
                 const date = new Date(post.createdAt).toLocaleString();
 
                 const viewLink = `<a href="/post/${post.id}" target="_blank" class="icon-btn" title="Zobacz post"><i class="icon-eye"></i></a>`;

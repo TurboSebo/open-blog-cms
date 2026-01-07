@@ -7,8 +7,8 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2>Panel administracyjny</h2>
         <div>
-            <a th:href="@{/admin/settings}" class="button secondary" style="margin-right: 8px;"><i class="demo-icon icon-cog"></i></a>
-            <a th:href="@{/admin/account}" class="button secondary" style="margin-right: 8px;"><i class="demo-icon icon-user"></i></a>
+            <a th:href="@{/admin/settings}" class="button secondary" style="margin-right: 8px; font-size: 1.5em;" title="Ustawienia bloga"><i class="demo-icon icon-cog"></i></a>
+            <a th:href="@{/admin/account}" class="button secondary" style="margin-right: 8px; font-size: 1.5em;" title="Ustawienia konta"><i class="demo-icon icon-user"></i></a>
         </div>
     </div>
 
@@ -17,7 +17,7 @@
     <section>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3>Twoje wpisy</h3>
-            <a th:href="@{/admin/add-post}" class="button"><i class="demo-icon icon-edit"></i></a>
+            <a th:href="@{/admin/add-post}" class="button" style="font-size: 1.3em;" title="Dodaj nowy post"><i class="demo-icon icon-edit"></i></a>
         </div>
 
         <div style="overflow-x: auto;">
