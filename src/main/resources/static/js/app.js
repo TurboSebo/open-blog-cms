@@ -31,6 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('upload-author-avatar')) {
         initAvatarUpload();
     }
+
+    // 8. NOWE: inicjalizacja formularza ustawień treści
+    if (document.getElementById('settings-form')) {
+        initSettingsForm();
+    }
 });
 
 /* =========================================
@@ -158,6 +163,9 @@ function applyTheme(theme) {
     if(theme.colorSurface) root.setProperty('--c-surface', theme.colorSurface);
     if(theme.colorBodyBg) root.setProperty('--c-body-bg', theme.colorBodyBg);
     if(theme.colorText) root.setProperty('--c-body-fg', theme.colorText);
+
+    // Wymuszenie ponownego obliczenia stylów w przeglądarce
+    void document.documentElement.offsetHeight;
 }
 
 function initThemeEditor() {
@@ -242,9 +250,11 @@ function initThemeEditor() {
             if (!response.ok) {
                 throw response;
             }
-            // Po udanym zapisie aktualizujemy cache i stosujemy motyw
-            saveThemeToLocalStorage(data);
-            applyTheme(data);
+            // Po udanym zapisie pobierz motyw z backendu i zastosuj go
+            return API.getTheme();
+        }).then(theme => {
+            saveThemeToLocalStorage(theme);
+            applyTheme(theme);
             showToast("Motyw zapisany w bazie!");
         }).catch(err => {
             console.error('Błąd zapisu motywu:', err);
@@ -308,6 +318,92 @@ function initAvatarUpload() {
             .finally(() => {
                 avatarUploadBtn.innerText = originalText;
                 avatarUploadBtn.disabled = false;
+            });
+    });
+}
+
+/* =========================================
+   USTAWIENIA TREŚCI (Settings)
+   ========================================= */
+function initSettingsForm() {
+    const form = document.getElementById('settings-form');
+    if (!form) return;
+
+    // Podgląd na żywo dla koloru i rozmiaru tytułu H1
+    const titleColorInput = document.getElementById('siteTitleColor');
+    const titleSizeInput = document.getElementById('siteTitleSize');
+    const titleAlignInput = document.getElementById('titleAlign');
+    const h1Element = document.querySelector('header h1');
+
+    if (titleColorInput && h1Element) {
+        titleColorInput.addEventListener('input', (e) => {
+            h1Element.style.color = e.target.value;
+        });
+    }
+
+    if (titleSizeInput && h1Element) {
+        titleSizeInput.addEventListener('input', (e) => {
+            h1Element.style.fontSize = e.target.value + 'px';
+        });
+    }
+
+    if (titleAlignInput && h1Element) {
+        titleAlignInput.addEventListener('change', (e) => {
+            h1Element.style.textAlign = e.target.value;
+        });
+    }
+
+    // Przechwycenie wysyłania formularza przez AJAX
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton ? submitButton.innerText : '';
+
+        if (submitButton) {
+            submitButton.innerText = 'Zapisywanie...';
+            submitButton.disabled = true;
+        }
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Błąd zapisu ustawień');
+                }
+                return response.text();
+            })
+            .then(() => {
+                // Zaktualizuj style H1 z wartości formularza
+                if (h1Element) {
+                    const titleColor = titleColorInput ? titleColorInput.value : null;
+                    const titleSize = titleSizeInput ? titleSizeInput.value : null;
+                    const titleAlign = titleAlignInput ? titleAlignInput.value : 'left';
+                    const titleText = document.getElementById('siteTitle') ? document.getElementById('siteTitle').value : null;
+
+                    if (titleColor) h1Element.style.color = titleColor;
+                    if (titleSize) h1Element.style.fontSize = titleSize + 'px';
+                    if (titleAlign) h1Element.style.textAlign = titleAlign;
+                    if (titleText) h1Element.textContent = titleText;
+
+                    // Wymuszenie ponownego obliczenia stylów
+                    void h1Element.offsetHeight;
+                }
+
+                showToast('Ustawienia zapisane pomyślnie!');
+            })
+            .catch(err => {
+                console.error('Błąd zapisu ustawień:', err);
+                showToast('Nie udało się zapisać ustawień.', 'error');
+            })
+            .finally(() => {
+                if (submitButton) {
+                    submitButton.innerText = originalText;
+                    submitButton.disabled = false;
+                }
             });
     });
 }
