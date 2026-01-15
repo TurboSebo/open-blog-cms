@@ -40,11 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================================
    LOGIKA API (Backend Communication)
-  Do bardziej szczegółowej obsługi błędów HTTP,
-   można opakować fetch w async/await i rzucać odpowiedzią, np.:
-   // const res = await fetch(...);
-   // if (!res.ok) throw res;
-   na razie jednak zostanę przy prostszej wersji.
    ========================================= */
 const API = {
     getPosts: () => fetch('/api/posts').then(r => r.json()),
@@ -489,10 +484,12 @@ function initAdminDashboard() {
             posts.forEach(post => {
                 const tr = document.createElement('tr');
                 const badgeClass = post.published ? 'published' : 'draft';
-                const badgeText = post.published ? '<i class="demo-icon icon-users" title="Post publiczny"></i>' : '<i class="demo-icon icon-lock" title="Post nieopublikowany"></i>';
+                const badgeText = post.published
+                    ? '<i class="demo-icon icon-users" title="Post publiczny"></i>'
+                    : '<i class="demo-icon icon-lock" title="Post nieopublikowany"></i>';
                 const date = new Date(post.createdAt).toLocaleString();
-
-                const viewLink = `<a href="/post/${post.id}" target="_blank" class="icon-btn" title="Zobacz post"><i class="icon-eye"></i></a>`;
+                const viewLink =
+                    `<a href="/post/${post.id}" target="_blank" class="icon-btn" title="Zobacz post"><i class="icon-eye"></i></a>`;
 
                 tr.innerHTML = `
                     <td>${post.id}</td>
@@ -515,19 +512,33 @@ function initAdminDashboard() {
         });
     }
 
-    // Obsługa kliknięć w tabeli (Delegacja zdarzeń)
+    // Delegacja zdarzeń – ważne przy ikonach zamiast tekstu
     tbody.addEventListener('click', (e) => {
-        const id = e.target.getAttribute('data-id');
-        if (!id) return;
+        // klik może wylądować na <i>, więc wędrujemy do <button>
+        const toggleBtn = e.target.closest('.btn-toggle');
+        const deleteBtn = e.target.closest('.btn-delete');
 
         // Publikacja / Ukrywanie
-        if (e.target.classList.contains('btn-toggle')) {
-            const isPublished = e.target.getAttribute('data-pub') === 'true';
-            API.updatePost(id, { published: !isPublished }).then(() => renderTable());
+        if (toggleBtn && tbody.contains(toggleBtn)) {
+            const id = toggleBtn.getAttribute('data-id');
+            if (!id) return;
+
+            const isPublished = toggleBtn.getAttribute('data-pub') === 'true';
+
+            API.updatePost(id, { published: !isPublished })
+                .then(() => {
+                    // po zapisie przeładuj tabelę, dzięki czemu nowe
+                    // data-pub, ikona i badge będą spójne
+                    renderTable();
+                });
+            return;
         }
 
         // Usuwanie
-        if (e.target.classList.contains('btn-delete')) {
+        if (deleteBtn && tbody.contains(deleteBtn)) {
+            const id = deleteBtn.getAttribute('data-id');
+            if (!id) return;
+
             if (confirm("Czy na pewno usunąć ten post?")) {
                 API.deletePost(id).then(() => renderTable());
             }
